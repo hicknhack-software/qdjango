@@ -1,14 +1,17 @@
-include(../../qdjango.pri)
-
+TEMPLATE = lib
+CONFIG += DLL
 QT -= gui
 QT += sql
 
 DEFINES += QDJANGO_DB_BUILD
+DEFINES += QDJANGO_SHARED
 
 TARGET = qdjango-db
-win32 {
-    DESTDIR = $$OUT_PWD
-}
+
+isEmpty(PROJECT_ROOT): PROJECT_ROOT = $$OUT_PWD/fake
+
+win32:CONFIG(release, debug|release): DESTDIR = $$PROJECT_ROOT/../Release
+else:win32:CONFIG(debug, debug|release): DESTDIR = $$PROJECT_ROOT/../Debug
 
 HEADERS += \
     QDjango.h \
@@ -19,14 +22,10 @@ HEADERS += \
     QDjangoQuerySet_p.h \
     QDjangoWhere.h \
     QDjangoWhere_p.h
+
 SOURCES += \
     QDjango.cpp \
     QDjangoMetaModel.cpp \
     QDjangoModel.cpp \
     QDjangoQuerySet.cpp \
     QDjangoWhere.cpp
-
-# Installation
-include(../src.pri)
-headers.path = $$PREFIX/include/qdjango/db
-QMAKE_PKGCONFIG_INCDIR = $$headers.path
