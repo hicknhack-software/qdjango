@@ -8,10 +8,10 @@ DEFINES += QDJANGO_SHARED
 
 TARGET = qdjango-db
 
-isEmpty(PROJECT_ROOT): PROJECT_ROOT = $$OUT_PWD/fake
+isEmpty(PROJECT_ROOT): PROJECT_ROOT = $$OUT_PWD
 
-win32:CONFIG(release, debug|release): DESTDIR = $$PROJECT_ROOT/../Release
-else:win32:CONFIG(debug, debug|release): DESTDIR = $$PROJECT_ROOT/../Debug
+win32:CONFIG(release, debug|release): DESTDIR = $$PROJECT_ROOT/Release
+else:win32:CONFIG(debug, debug|release): DESTDIR = $$PROJECT_ROOT/Debug
 
 HEADERS += \
     QDjango.h \
