@@ -1,10 +1,14 @@
 TEMPLATE = lib
-CONFIG += DLL
+
+android:CONFIG += static
+else:CONFIG += DLL
+
 QT -= gui
 QT += sql
 
 DEFINES += QDJANGO_DB_BUILD
-DEFINES += QDJANGO_SHARED
+CONFIG(DLL): DEFINES += QDJANGO_SHARED
+else: DEFINES += QDJANGO_STATIC
 
 TARGET = qdjango-db
 
