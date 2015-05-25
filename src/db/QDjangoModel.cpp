@@ -31,6 +31,8 @@ QDjangoModel::QDjangoModel(QObject *parent)
 {
 }
 
+QDjangoModel::~QDjangoModel() {}
+
 /** Returns the primary key for this QDjangoModel.
  */
 QVariant QDjangoModel::pk() const
