@@ -58,7 +58,8 @@ public:
         INotEquals,
         IStartsWith,
         IEndsWith,
-        IContains
+        IContains,
+        InsecureSql,
     };
 
     QDjangoWhere();

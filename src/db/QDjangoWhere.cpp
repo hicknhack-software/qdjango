@@ -156,6 +156,7 @@ QDjangoWhere QDjangoWhere::operator!() const
         case IEndsWith:
         case Contains:
         case IContains:
+        case InsecureSql:
             result.d->negate = !d->negate;
             break;
         case IsNull:
@@ -260,7 +261,7 @@ void QDjangoWhere::bindValues(QDjangoQuery &query) const
         const QList<QVariant> values = d->data.toList();
         for (int i = 0; i < values.size(); i++)
             query.addBindValue(values[i]);
-    } else if (d->operation == QDjangoWhere::IsNull) {
+    } else if (d->operation == QDjangoWhere::IsNull || d->operation == QDjangoWhere::InsecureSql) {
         // no data to bind
     } else if (d->operation == QDjangoWhere::StartsWith || d->operation == QDjangoWhere::IStartsWith) {
         query.addBindValue(escapeLike(d->data.toString()) + QLatin1String("%"));
@@ -386,6 +387,9 @@ QString QDjangoWhere::sql(const QSqlDatabase &db) const
                     combined = QString::fromLatin1("NOT (%1)").arg(combined);
                 return combined;
             }
+        case InsecureSql:
+            if (d->negate) return QString::fromLatin1("NOT (%1)").arg(d->data.toString());
+            return QString::fromLatin1("(%1)").arg(d->data.toString());
     }
 
     return QString();
@@ -431,6 +435,7 @@ QString QDjangoWherePrivate::operationToString(QDjangoWhere::Operation operation
     case QDjangoWhere::IContains: return QLatin1String("IContains");
     case QDjangoWhere::IsIn: return QLatin1String("IsIn");
     case QDjangoWhere::IsNull: return QLatin1String("IsNull");
+    case QDjangoWhere::InsecureSql: return QLatin1String("Sql");
     case QDjangoWhere::None:
     default:
         return QLatin1String("");
