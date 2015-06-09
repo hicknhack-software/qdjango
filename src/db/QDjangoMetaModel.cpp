@@ -228,6 +228,21 @@ static bool stringToBool(const QString &value)
     return value.toLower() == QLatin1String("true") || value == QLatin1String("1");
 }
 
+static bool isEnumType(const QString& typeName)
+{
+    auto dividerIndex = typeName.lastIndexOf("::");
+    if (-1 == dividerIndex) return false;
+    auto className = typeName.left(dividerIndex) + "*";
+    auto typeId = QMetaType::type(className.toLatin1());
+    if (QMetaType::UnknownType == typeId) return false;
+    auto object = QMetaType::metaObjectForType(typeId);
+    if (nullptr == object) return false;
+    auto enumName = typeName.mid(dividerIndex + 2);
+    auto enumId = object->indexOfEnumerator(enumName.toLatin1());
+    if (-1 == enumId) return false;
+    return true;
+}
+
 class QDjangoMetaModelPrivate : public QSharedData
 {
 public:
@@ -269,7 +284,8 @@ QDjangoMetaModel::QDjangoMetaModel(const QMetaObject *meta)
     for(int i = QObject::staticMetaObject.propertyCount(); i < count; ++i)
     {
         const QString typeName = QString::fromLatin1(meta->property(i).typeName());
-        if (!qstrcmp(meta->property(i).name(), "pk"))
+        const char* propertyName = meta->property(i).name();
+        if (!qstrcmp(propertyName, "pk"))
             continue;
 
         // parse field options
@@ -283,7 +299,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QMetaObject *meta)
         bool uniqueOption = false;
         bool blankOption = false;
         ForeignKeyConstraint deleteConstraint = NoAction;
-        const int infoIndex = meta->indexOfClassInfo(meta->property(i).name());
+        const int infoIndex = meta->indexOfClassInfo(propertyName);
         if (infoIndex >= 0)
         {
             QMap<QString, QString> options = parseOptions(meta->classInfo(infoIndex).value());
@@ -327,7 +343,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QMetaObject *meta)
 
         // foreign field
         if (typeName.endsWith(QLatin1Char('*'))) {
-            const QByteArray fkName = meta->property(i).name();
+            const QByteArray fkName = propertyName;
             const QByteArray fkModel = typeName.left(typeName.size() - 1).toLatin1();
             d->foreignFields.insert(fkName, fkModel);
 
@@ -346,10 +362,17 @@ QDjangoMetaModel::QDjangoMetaModel(const QMetaObject *meta)
             continue;
         }
 
+        auto propertyType = meta->property(i).type();
+        if (propertyType == QVariant::UserType) {
+            if (isEnumType(meta->property(i).typeName())) {
+                propertyType = QVariant::Int;
+            }
+        }
+
         // local field
         QDjangoMetaField field;
-        field.d->name = meta->property(i).name();
-        field.d->type = meta->property(i).type();
+        field.d->name = propertyName;
+        field.d->type = propertyType;
         field.d->db_column = dbColumnOption.isEmpty() ? QString::fromLatin1(field.d->name) : dbColumnOption;
         field.d->maxLength = maxLengthOption;
         field.d->null = nullOption;
