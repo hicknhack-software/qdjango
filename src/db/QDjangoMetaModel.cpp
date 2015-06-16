@@ -204,7 +204,10 @@ QVariant QDjangoMetaField::toDatabase(const QVariant &value) const
     else if (!d->foreignModel.isEmpty() && d->type == QVariant::Int && d->null && !value.toInt()) {
         // store 0 foreign key as NULL if the field is NULL
         return QVariant();
-    } else
+    }
+    else if (d->type == QVariant::Int && value.type() == QVariant::UserType)
+        return value.toInt();
+    else
         return value;
 }
 
