@@ -71,8 +71,8 @@ public:
 
     bool isValid() const;
 
-    bool createTable() const;
-    QStringList createTableSql() const;
+    bool createTable(bool ifNotExists = false) const;
+    QStringList createTableSql(bool ifNotExists = false) const;
     bool dropTable() const;
 
     void load(QObject *model, const QVariantList &props, int &pos) const;
