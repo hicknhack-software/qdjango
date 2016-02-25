@@ -64,6 +64,11 @@ private:
 class QDJANGO_DB_EXPORT QDjangoMetaModel
 {
 public:
+    enum CreationType {
+        Normal,
+        IfNotExists,
+    };
+
     QDjangoMetaModel(const QMetaObject *model = 0);
     QDjangoMetaModel(const QDjangoMetaModel &other);
     ~QDjangoMetaModel();
@@ -71,8 +76,8 @@ public:
 
     bool isValid() const;
 
-    bool createTable(bool ifNotExists = false) const;
-    QStringList createTableSql(bool ifNotExists = false) const;
+    bool createTable(QDjangoMetaModel::CreationType creationType = QDjangoMetaModel::Normal) const;
+    QStringList createTableSql(QDjangoMetaModel::CreationType creationType = QDjangoMetaModel::Normal) const;
     bool dropTable() const;
 
     void load(QObject *model, const QVariantList &props, int &pos) const;

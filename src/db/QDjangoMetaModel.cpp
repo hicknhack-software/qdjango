@@ -448,10 +448,10 @@ QDjangoMetaModel& QDjangoMetaModel::operator=(const QDjangoMetaModel& other)
 
     \return true if the table was created, false otherwise.
 */
-bool QDjangoMetaModel::createTable(bool ifNotExists) const
+bool QDjangoMetaModel::createTable(QDjangoMetaModel::CreationType creationType) const
 {
     QDjangoQuery createQuery(QDjango::database());
-    foreach (const QString &sql, createTableSql(ifNotExists)) {
+    foreach (const QString &sql, createTableSql(creationType)) {
         if (!createQuery.exec(sql))
             return false;
     }
@@ -462,7 +462,7 @@ bool QDjangoMetaModel::createTable(bool ifNotExists) const
     Returns the SQL queries to create the database table for this
     QDjangoMetaModel.
 */
-QStringList QDjangoMetaModel::createTableSql(bool ifNotExists) const
+QStringList QDjangoMetaModel::createTableSql(CreationType creationType) const
 {
     QSqlDatabase db = QDjango::database();
     QSqlDriver *driver = db.driver();
@@ -649,7 +649,10 @@ QStringList QDjangoMetaModel::createTableSql(bool ifNotExists) const
 
     // create table
     queries << QString::fromLatin1("%1 %2 (%3)").arg(
-            QString::fromLatin1("CREATE TABLE%1").arg(ifNotExists ? QString::fromLatin1(" IF NOT EXISTS") : QString::fromLatin1("")),
+            QString::fromLatin1("CREATE TABLE%1")
+                   .arg(creationType == QDjangoMetaModel::IfNotExists
+                        ? QString::fromLatin1(" IF NOT EXISTS")
+                        : QString::fromLatin1("")),
             quotedTable,
             propSql.join(QLatin1String(", ")));
 
@@ -659,7 +662,10 @@ QStringList QDjangoMetaModel::createTableSql(bool ifNotExists) const
             const QString indexName = d->table + QLatin1Char('_')
                 + stringlist_digest(QStringList() << field.column());
             queries << QString::fromLatin1("%1 %2 ON %3 (%4)").arg(
-                QString::fromLatin1("CREATE INDEX%1").arg(ifNotExists ? QString::fromLatin1(" IF NOT EXISTS") : QString::fromLatin1("")),
+                QString::fromLatin1("CREATE INDEX%1")
+                           .arg(creationType == QDjangoMetaModel::IfNotExists
+                                ? QString::fromLatin1(" IF NOT EXISTS")
+                                : QString::fromLatin1("")),
                 // FIXME : how should we escape an index name?
                 driver->escapeIdentifier(indexName, QSqlDriver::FieldName),
                 quotedTable,
