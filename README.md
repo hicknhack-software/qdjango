@@ -1,7 +1,7 @@
 QDjango - a Qt-based C++ web framework  
 Copyright (c) 2010-2015 Jeremy Lainé
 
-[![Build Status](https://travis-ci.org/jlaine/qdjango.png)](https://travis-ci.org/jlaine/qdjango)
+[![Build Status](https://travis-ci.org/hicknhack-software/qdjango.svg)](https://travis-ci.org/hicknhack-software)
 
 About
 =====
