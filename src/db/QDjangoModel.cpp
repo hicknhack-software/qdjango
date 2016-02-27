@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2014 Jeremy Lainé
+ * Copyright (C) 2010-2015 Jeremy Lainé
  * Contact: https://github.com/jlaine/qdjango
  *
  * This file is part of the QDjango Library.
@@ -66,7 +66,7 @@ QObject *QDjangoModel::foreignKey(const char *name) const
  * \param name
  * \param value
  *
- * \note The current QDjangoModel will take ownership of the given \c value.
+ * \note The QDjangoModel will not take ownership of the given \c value.
  */
 void QDjangoModel::setForeignKey(const char *name, QObject *value)
 {

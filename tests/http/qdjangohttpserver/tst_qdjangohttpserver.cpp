@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2014 Jeremy Lainé
+ * Copyright (C) 2010-2015 Jeremy Lainé
  * Contact: https://github.com/jlaine/qdjango
  *
  * This file is part of the QDjango Library.
@@ -59,7 +59,7 @@ void tst_QDjangoHttpServer::cleanupTestCase()
 void tst_QDjangoHttpServer::initTestCase()
 {
     httpServer = new QDjangoHttpServer;
-    httpServer->urls()->set(QRegExp(QLatin1String(QLatin1String("^$"))), this, "_q_index");
+    httpServer->urls()->set(QRegExp(QLatin1String("^$")), this, "_q_index");
     httpServer->urls()->set(QRegExp(QLatin1String("^internal-server-error$")), this, "_q_error");
     QCOMPARE(httpServer->serverAddress(), QHostAddress(QHostAddress::Null));
     QCOMPARE(httpServer->serverPort(), quint16(0));

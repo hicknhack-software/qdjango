@@ -1,3 +1,16 @@
+QDjango 0.6.2 (2015-10-22)
+ * Make sure HTTP dates are handled using C locale.
+
+QDjango 0.6.1 (2015-08-13)
+ * Bump QDJANGO_VERSION, which had stayed at 0.5.0.
+
+QDjango 0.6.0 (2015-08-12)
+ * Remove support for QtScript.
+ * Make tests runnable using "make check".
+ * Fix build errors on Windows.
+ * Clarify return values of createTable(s) and dropTable(s).
+ * Fix documentation for setForeignKey concerning object ownership.
+
 QDjango 0.5.0 (2014-09-13)
  * Add support for case-insensitive lookups.
  * Simplify SQL for multiple OR/AND clauses.

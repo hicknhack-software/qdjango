@@ -1,5 +1,5 @@
 QDjango - a Qt-based C++ web framework  
-Copyright (c) 2010-2014 Jeremy Lainé
+Copyright (c) 2010-2015 Jeremy Lainé
 
 [![Build Status](https://travis-ci.org/jlaine/qdjango.png)](https://travis-ci.org/jlaine/qdjango)
 
@@ -24,7 +24,7 @@ Qt 4 on Debian:
 
 Qt 5 on Debian:
 
-    sudo apt-get install qtbase5-dev qtscript5-dev
+    sudo apt-get install qtbase5-dev
 
 Qt 4 on Mac OS X:
 
