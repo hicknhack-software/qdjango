@@ -83,7 +83,6 @@ class QDJANGO_DB_EXPORT QDjangoModel : public QObject
 
 public:
     QDjangoModel(QObject *parent = 0);
-    ~QDjangoModel();
 
     QVariant pk() const;
     void setPk(const QVariant &pk);
