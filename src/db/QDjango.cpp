@@ -266,12 +266,12 @@ static QStack<QDjangoMetaModel> qdjango_sorted_metamodels()
 
     \return true if all the tables were created, false otherwise.
 */
-bool QDjango::createTables()
+bool QDjango::createTables(QDjangoMetaModel::CreationType creationType)
 {
     bool result = true;
     QStack<QDjangoMetaModel> stack = qdjango_sorted_metamodels();
     foreach (const QDjangoMetaModel &model, stack) {
-        if (!model.createTable())
+        if (!model.createTable(creationType))
             result = false;
     }
 
