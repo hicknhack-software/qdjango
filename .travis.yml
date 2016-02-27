@@ -1,5 +1,6 @@
 language: cpp
 cache: apt
+sudo: true
 env:
   - QT_SELECT=qt4 CONFIG=shared
   - QT_SELECT=qt4 CONFIG=static
