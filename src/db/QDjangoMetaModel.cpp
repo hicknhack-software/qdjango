@@ -233,15 +233,15 @@ static bool stringToBool(const QString &value)
 
 static bool isEnumType(const QString& typeName)
 {
-    auto dividerIndex = typeName.lastIndexOf("::");
+	int dividerIndex = typeName.lastIndexOf("::");
     if (-1 == dividerIndex) return false;
-    auto className = typeName.left(dividerIndex) + "*";
-    auto typeId = QMetaType::type(className.toLatin1());
+	QString className = typeName.left(dividerIndex) + "*";
+	int typeId = QMetaType::type(className.toLatin1());
     if (QMetaType::UnknownType == typeId) return false;
-    auto object = QMetaType::metaObjectForType(typeId);
-    if (nullptr == object) return false;
-    auto enumName = typeName.mid(dividerIndex + 2);
-    auto enumId = object->indexOfEnumerator(enumName.toLatin1());
+	const QMetaObject* object = QMetaType::metaObjectForType(typeId);
+	if (!object) return false;
+	QString enumName = typeName.mid(dividerIndex + 2);
+	int enumId = object->indexOfEnumerator(enumName.toLatin1());
     if (-1 == enumId) return false;
     return true;
 }
@@ -365,7 +365,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QMetaObject *meta)
             continue;
         }
 
-        auto propertyType = meta->property(i).type();
+		QVariant::Type propertyType = meta->property(i).type();
         if (propertyType == QVariant::UserType) {
             if (isEnumType(meta->property(i).typeName())) {
                 propertyType = QVariant::Int;
