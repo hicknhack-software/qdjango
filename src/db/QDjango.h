@@ -34,7 +34,7 @@ class QString;
 class QDJANGO_DB_EXPORT QDjango
 {
 public:
-    static bool createTables();
+    static bool createTables(QDjangoMetaModel::CreationType creationType = QDjangoMetaModel::Normal);
     static bool dropTables();
 
     static QSqlDatabase database();

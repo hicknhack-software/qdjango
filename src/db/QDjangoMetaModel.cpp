@@ -448,10 +448,10 @@ QDjangoMetaModel& QDjangoMetaModel::operator=(const QDjangoMetaModel& other)
 
     \return true if the table was created, false otherwise.
 */
-bool QDjangoMetaModel::createTable() const
+bool QDjangoMetaModel::createTable(CreationType creationType) const
 {
     QDjangoQuery createQuery(QDjango::database());
-    foreach (const QString &sql, createTableSql()) {
+    foreach (const QString &sql, createTableSql(creationType)) {
         if (!createQuery.exec(sql))
             return false;
     }
@@ -462,7 +462,7 @@ bool QDjangoMetaModel::createTable() const
     Returns the SQL queries to create the database table for this
     QDjangoMetaModel.
 */
-QStringList QDjangoMetaModel::createTableSql() const
+QStringList QDjangoMetaModel::createTableSql(CreationType creationType) const
 {
     QSqlDatabase db = QDjango::database();
     QSqlDriver *driver = db.driver();
@@ -647,8 +647,13 @@ QStringList QDjangoMetaModel::createTableSql() const
         propSql << QString::fromLatin1("UNIQUE (%2)").arg(columns.join(QLatin1String(", ")));
     }
 
-    // create table
-    queries << QString::fromLatin1("CREATE TABLE %1 (%2)").arg(
+	QString creationTypeSql = creationType == IfNotExists
+                        ? QString::fromLatin1(" IF NOT EXISTS")
+			: QString();
+
+	// create table
+	queries << QString::fromLatin1("CREATE TABLE%1 %2 (%3)").arg(
+			creationTypeSql,
             quotedTable,
             propSql.join(QLatin1String(", ")));
 
@@ -657,7 +662,8 @@ QStringList QDjangoMetaModel::createTableSql() const
         if (field.d->index) {
             const QString indexName = d->table + QLatin1Char('_')
                 + stringlist_digest(QStringList() << field.column());
-            queries << QString::fromLatin1("CREATE INDEX %1 ON %2 (%3)").arg(
+			queries << QString::fromLatin1("CREATE INDEX%1 %2 ON %3 (%4)").arg(
+				creationTypeSql,
                 // FIXME : how should we escape an index name?
                 driver->escapeIdentifier(indexName, QSqlDriver::FieldName),
                 quotedTable,
