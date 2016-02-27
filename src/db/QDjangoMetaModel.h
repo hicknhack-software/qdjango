@@ -76,8 +76,8 @@ public:
 
     bool isValid() const;
 
-    bool createTable(QDjangoMetaModel::CreationType creationType = QDjangoMetaModel::Normal) const;
-    QStringList createTableSql(QDjangoMetaModel::CreationType creationType = QDjangoMetaModel::Normal) const;
+	bool createTable(CreationType = Normal) const;
+	QStringList createTableSql(CreationType = Normal) const;
     bool dropTable() const;
 
     void load(QObject *model, const QVariantList &props, int &pos) const;

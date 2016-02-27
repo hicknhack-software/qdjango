@@ -448,7 +448,7 @@ QDjangoMetaModel& QDjangoMetaModel::operator=(const QDjangoMetaModel& other)
 
     \return true if the table was created, false otherwise.
 */
-bool QDjangoMetaModel::createTable(QDjangoMetaModel::CreationType creationType) const
+bool QDjangoMetaModel::createTable(CreationType creationType) const
 {
     QDjangoQuery createQuery(QDjango::database());
     foreach (const QString &sql, createTableSql(creationType)) {
@@ -647,12 +647,13 @@ QStringList QDjangoMetaModel::createTableSql(CreationType creationType) const
         propSql << QString::fromLatin1("UNIQUE (%2)").arg(columns.join(QLatin1String(", ")));
     }
 
-    // create table
-    queries << QString::fromLatin1("%1 %2 (%3)").arg(
-            QString::fromLatin1("CREATE TABLE%1")
-                   .arg(creationType == QDjangoMetaModel::IfNotExists
+	QString creationTypeSql = creationType == IfNotExists
                         ? QString::fromLatin1(" IF NOT EXISTS")
-                        : QString::fromLatin1("")),
+			: QString();
+
+	// create table
+	queries << QString::fromLatin1("CREATE TABLE%1 %2 (%3)").arg(
+			creationTypeSql,
             quotedTable,
             propSql.join(QLatin1String(", ")));
 
@@ -661,11 +662,8 @@ QStringList QDjangoMetaModel::createTableSql(CreationType creationType) const
         if (field.d->index) {
             const QString indexName = d->table + QLatin1Char('_')
                 + stringlist_digest(QStringList() << field.column());
-            queries << QString::fromLatin1("%1 %2 ON %3 (%4)").arg(
-                QString::fromLatin1("CREATE INDEX%1")
-                           .arg(creationType == QDjangoMetaModel::IfNotExists
-                                ? QString::fromLatin1(" IF NOT EXISTS")
-                                : QString::fromLatin1("")),
+			queries << QString::fromLatin1("CREATE INDEX%1 %2 ON %3 (%4)").arg(
+				creationTypeSql,
                 // FIXME : how should we escape an index name?
                 driver->escapeIdentifier(indexName, QSqlDriver::FieldName),
                 quotedTable,
