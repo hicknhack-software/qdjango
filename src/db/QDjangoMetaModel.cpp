@@ -745,7 +745,7 @@ void QDjangoMetaModel::setForeignKey(QObject *model, const char *name, QObject *
         return;
 
     // store the new pointer and update the foreign key
-    model->setProperty(prop + "_ptr", qVariantFromValue(value));
+    model->setProperty(prop + "_ptr", QVariant::fromValue(value));
     if (value) {
         const QDjangoMetaModel foreignMeta = QDjango::metaModel(d->foreignFields[prop]);
         model->setProperty(prop + "_id", value->property(foreignMeta.primaryKey()));
