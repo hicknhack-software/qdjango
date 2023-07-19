@@ -199,7 +199,7 @@ int QDjangoMetaField::maxLength() const
 */
 QVariant QDjangoMetaField::toDatabase(const QVariant &value) const
 {
-    if (d->type == QVariant::String && !d->null && value.isNull())
+    if (d->type == QVariant::String && !d->null && value.toString().isNull())
         return QLatin1String("");
     else if (!d->foreignModel.isEmpty() && d->type == QVariant::Int && d->null && !value.toInt()) {
         // store 0 foreign key as NULL if the field is NULL
