@@ -83,7 +83,8 @@ QString QDjangoCompiler::databaseColumn(const QString &name)
             rev.rightHandKey = foreignModel.primaryKey();
             reverseModelRefs[modelPath] = rev;
         } else {
-            foreignModel = QDjango::metaModel(model.foreignFields()[fk]);
+            QMap<QByteArray, QByteArray> foreignFields = model.foreignFields();
+            foreignModel = QDjango::metaModel(foreignFields[fk]);
             foreignNullable = model.localField(fk + QByteArray("_id")).isNullable();;
         }
 
@@ -114,8 +115,9 @@ QStringList QDjangoCompiler::fieldNames(bool recurse, QDjangoMetaModel *metaMode
 
     // recurse for foreign keys
     const QString pathPrefix = modelPath.isEmpty() ? QString() : (modelPath + QLatin1String("__"));
-        QDjangoMetaModel metaForeign = QDjango::metaModel(metaModel->foreignFields()[fkName]);
     for (auto const &[fkName, _] : metaModel->foreignFields().asKeyValueRange()) {
+        QMap<QByteArray, QByteArray> foreignFields = metaModel->foreignFields();
+        QDjangoMetaModel metaForeign = QDjango::metaModel(foreignFields[fkName]);
         bool nullableForeign = metaModel->localField(fkName + QByteArray("_id")).isNullable();
         columns += fieldNames(recurse, &metaForeign, pathPrefix + QString::fromLatin1(fkName), nullableForeign);
     }
