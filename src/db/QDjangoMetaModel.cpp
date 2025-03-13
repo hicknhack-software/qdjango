@@ -81,7 +81,7 @@ public:
     int maxLength;
     QByteArray name;
     bool null;
-    QVariant::Type type;
+    QMetaType::Type type;
     bool unique;
     bool blank;
     ForeignKeyConstraint deleteConstraint;
@@ -199,13 +199,12 @@ int QDjangoMetaField::maxLength() const
 */
 QVariant QDjangoMetaField::toDatabase(const QVariant &value) const
 {
-    if (d->type == QVariant::String && !d->null && value.toString().isNull())
+    if (d->type == QMetaType::QString && !d->null && value.toString().isNull())
         return QLatin1String("");
-    else if (!d->foreignModel.isEmpty() && d->type == QVariant::Int && d->null && !value.toInt()) {
+    else if (!d->foreignModel.isEmpty() && d->type == QMetaType::Int && d->null && !value.toInt()) {
         // store 0 foreign key as NULL if the field is NULL
         return QVariant();
-    }
-    else if (d->type == QVariant::Int && value.type() == QVariant::UserType)
+    } else if (d->type == QMetaType::Int && value.typeId() == QMetaType::User)
         return value.toInt();
     else
         return value;
@@ -236,12 +235,14 @@ static bool isEnumType(const QString& typeName)
 	int dividerIndex = typeName.lastIndexOf("::");
     if (-1 == dividerIndex) return false;
 	QString className = typeName.left(dividerIndex) + "*";
-	int typeId = QMetaType::type(className.toLatin1());
-    if (QMetaType::UnknownType == typeId) return false;
-	const QMetaObject* object = QMetaType::metaObjectForType(typeId);
-	if (!object) return false;
-	QString enumName = typeName.mid(dividerIndex + 2);
-	int enumId = object->indexOfEnumerator(enumName.toLatin1());
+    auto type = QMetaType::fromName(className.toLatin1());
+    if (QMetaType::UnknownType == type.id())
+        return false;
+    const QMetaObject *object = type.metaObject();
+    if (!object)
+        return false;
+    QString enumName = typeName.mid(dividerIndex + 2);
+    int enumId = object->indexOfEnumerator(enumName.toLatin1());
     if (-1 == enumId) return false;
     return true;
 }
@@ -355,7 +356,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QMetaObject *meta)
             // FIXME : the key is not necessarily an INTEGER field, we should
             // probably perform a lookup on the foreign model, but are we sure
             // it is already registered?
-            field.d->type = QVariant::Int;
+            field.d->type = QMetaType::Int;
             field.d->foreignModel = fkModel;
             field.d->db_column = dbColumnOption.isEmpty() ? QString::fromLatin1(field.d->name) : dbColumnOption;
             field.d->index = true;
@@ -365,10 +366,10 @@ QDjangoMetaModel::QDjangoMetaModel(const QMetaObject *meta)
             continue;
         }
 
-		QVariant::Type propertyType = meta->property(i).type();
-        if (propertyType == QVariant::UserType) {
+        auto propertyType = QMetaType::Type(meta->property(i).typeId());
+        if (propertyType == QMetaType::User) {
             if (isEnumType(meta->property(i).typeName())) {
-                propertyType = QVariant::Int;
+                propertyType = QMetaType::Int;
             }
         }
 
@@ -397,7 +398,7 @@ QDjangoMetaModel::QDjangoMetaModel(const QMetaObject *meta)
     if (d->primaryKey.isEmpty()) {
         QDjangoMetaField field;
         field.d->name = "id";
-        field.d->type = QVariant::Int;
+        field.d->type = QMetaType::Int;
         field.d->db_column = QLatin1String("id");
         field.d->autoIncrement = true;
         d->localFields.prepend(field);
@@ -476,7 +477,7 @@ QStringList QDjangoMetaModel::createTableSql(CreationType creationType) const
     {
         QString fieldSql = driver->escapeIdentifier(field.column(), QSqlDriver::FieldName);
         switch (field.d->type) {
-        case QVariant::Bool:
+        case QMetaType::Bool:
             if (databaseType == QDjangoDatabase::PostgreSQL)
                 fieldSql += QLatin1String(" boolean");
             else if (databaseType == QDjangoDatabase::MSSqlServer)
@@ -484,7 +485,7 @@ QStringList QDjangoMetaModel::createTableSql(CreationType creationType) const
             else
                 fieldSql += QLatin1String(" bool");
             break;
-        case QVariant::ByteArray:
+        case QMetaType::QByteArray:
             if (databaseType == QDjangoDatabase::PostgreSQL) {
                 fieldSql += QLatin1String(" bytea");
             } else if (databaseType == QDjangoDatabase::MSSqlServer) {
@@ -499,28 +500,28 @@ QStringList QDjangoMetaModel::createTableSql(CreationType creationType) const
                     fieldSql += QLatin1Char('(') + QString::number(field.d->maxLength) + QLatin1Char(')');
             }
             break;
-        case QVariant::Date:
+        case QMetaType::QDate:
             fieldSql += QLatin1String(" date");
             break;
-        case QVariant::DateTime:
+        case QMetaType::QDateTime:
             if (databaseType == QDjangoDatabase::PostgreSQL)
                 fieldSql += QLatin1String(" timestamp");
             else
                 fieldSql += QLatin1String(" datetime");
             break;
-        case QVariant::Double:
+        case QMetaType::Double:
             fieldSql += QLatin1String(" real");
             break;
-        case QVariant::Int:
+        case QMetaType::Int:
             if (databaseType == QDjangoDatabase::MSSqlServer)
                 fieldSql += QLatin1String(" int");
             else
                 fieldSql += QLatin1String(" integer");
             break;
-        case QVariant::LongLong:
+        case QMetaType::LongLong:
             fieldSql += QLatin1String(" bigint");
             break;
-        case QVariant::String:
+        case QMetaType::QString:
             if (field.d->maxLength > 0) {
                 if (databaseType == QDjangoDatabase::MSSqlServer)
                     fieldSql += QLatin1String(" nvarchar(") + QString::number(field.d->maxLength) + QLatin1Char(')');
@@ -533,7 +534,7 @@ QStringList QDjangoMetaModel::createTableSql(CreationType creationType) const
                     fieldSql += QLatin1String(" text");
             }
             break;
-        case QVariant::Time:
+        case QMetaType::QTime:
             fieldSql += QLatin1String(" time");
             break;
         default:
@@ -843,8 +844,7 @@ bool QDjangoMetaModel::save(QObject *model) const
     // find primary key
     const QDjangoMetaField primaryKey = localField("pk");
     const QVariant pk = model->property(d->primaryKey);
-    if (!pk.isNull() && !(primaryKey.d->type == QVariant::Int && !pk.toInt()))
-    {
+    if (!pk.isNull() && !(primaryKey.d->type == QMetaType::Int && !pk.toInt())) {
         QSqlDatabase db = QDjango::database();
         QDjangoQuery query(db);
         query.prepare(QString::fromLatin1("SELECT 1 AS a FROM %1 WHERE %2 = ?").arg(

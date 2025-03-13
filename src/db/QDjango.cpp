@@ -115,7 +115,7 @@ void QDjangoQuery::addBindValue(const QVariant &val, QSql::ParamType paramType)
 {
     // this hack is required so that we do not store a mix of local
     // and UTC times
-    if (val.type() == QVariant::DateTime)
+    if (val.typeId() == QMetaType::QDateTime)
         QSqlQuery::addBindValue(val.toDateTime().toLocalTime(), paramType);
     else
         QSqlQuery::addBindValue(val, paramType);
