@@ -243,7 +243,7 @@ static void qdjango_topsort(const QByteArray &modelName, QHash<QByteArray, bool>
 {
     visited[modelName] = true;
     QDjangoMetaModel model = globalMetaModels[modelName];
-    foreach (const QByteArray &foreignModel, model.foreignFields().values()) {
+    for (auto const &[_, foreignModel] : model.foreignFields().asKeyValueRange()) {
         if (!visited[foreignModel])
             qdjango_topsort(foreignModel, visited, stack);
     }
@@ -257,10 +257,10 @@ static QStack<QDjangoMetaModel> qdjango_sorted_metamodels()
     stack.reserve(globalMetaModels.size());
     QHash<QByteArray, bool> visited;
     visited.reserve(globalMetaModels.size());
-    foreach (const QByteArray &model, globalMetaModels.keys())
+    for (auto const &[model, _] : globalMetaModels.asKeyValueRange())
         visited[model] = false;
 
-    foreach (const QByteArray &model, globalMetaModels.keys()) {
+    for (auto const &[model, _] : globalMetaModels.asKeyValueRange()) {
         if (!visited[model])
             qdjango_topsort(model, visited, stack);
     }
@@ -312,7 +312,7 @@ QDjangoMetaModel QDjango::metaModel(const char *name)
         return globalMetaModels.value(name);
 
     // otherwise, try to find a model anyway
-    foreach (QByteArray modelName, globalMetaModels.keys()) {
+    for (auto const &[modelName, _] : globalMetaModels.asKeyValueRange()) {
         if (qstricmp(name, modelName.data()) == 0)
             return globalMetaModels.value(modelName);
     }

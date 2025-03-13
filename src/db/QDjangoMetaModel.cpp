@@ -767,8 +767,7 @@ void QDjangoMetaModel::load(QObject *model, const QVariantList &properties, int 
     // process foreign fields
     if (pos >= properties.size())
         return;
-    foreach (const QByteArray &fkName, d->foreignFields.keys())
-    {
+    for (auto const &[fkName, _] : d->foreignFields.asKeyValueRange()) {
         QObject *object = model->property(fkName + "_ptr").value<QObject*>();
         if (object)
         {
