@@ -2,7 +2,7 @@ Project {
     minimumQbsVersion: "3.0.0"
 
     Library {
-        property string libInstallPrefix: project.projectRoot !== undefined ? project.projectRoot : ""
+        property string productInstallPrefix: project.projectRoot !== undefined ? project.projectRoot : ""
 
         Depends { name: "cpp" }
         cpp.defines: [
@@ -15,7 +15,7 @@ Project {
         Group {
             fileTagsFilter: product.type
             qbs.install: true
-            qbs.installPrefix: libInstallPrefix
+            qbs.installPrefix: productInstallPrefix
         }
 
         files: [
