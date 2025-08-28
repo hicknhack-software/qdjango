@@ -38,7 +38,7 @@ Project {
 
         Export {
             Depends { name: "cpp" }
-            cpp.defines: cppDefines
+            cpp.defines: exportingProduct.cppDefines
             cpp.includePaths: exportingProduct.sourceDirectory
 
             Depends { name: "Qt"; submodules: "sql" }
