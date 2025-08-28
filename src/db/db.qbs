@@ -4,12 +4,10 @@ Project {
     minimumQbsVersion: "3.0.0"
 
     Library {
+        readonly property var cppDefines: isDynamicLibrary ? ["QDJANGO_SHARED"] : [];
 
         Depends { name: "cpp" }
-        cpp.defines: [
-            "QDJANGO_DB_BUILD",
-            isDynamicLibrary ? "QDJANGO_SHARED" : "QDJANGO_STATIC"
-        ]
+        cpp.defines: cppDefines.concat(["QDJANGO_DB_BUILD"])
 
         Depends { name: "Qt"; submodules: "sql" }
 
@@ -40,7 +38,7 @@ Project {
 
         Export {
             Depends { name: "cpp" }
-            cpp.cxxLanguageVersion: "c++20"
+            cpp.defines: cppDefines
             cpp.includePaths: exportingProduct.sourceDirectory
 
             Depends { name: "Qt"; submodules: "sql" }
