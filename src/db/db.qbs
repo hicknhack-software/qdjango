@@ -1,21 +1,21 @@
 Project {
+    property string dynamicLibrariesDirectory: ""
     property string installPrefix: ""
 
-    minimumQbsVersion: "3.0.0"
+    minimumQbsVersion: "3.1.0"
 
     Library {
         readonly property var cppDefines: isDynamicLibrary ? ["QDJANGO_SHARED"] : [];
+
+        Depends { name: "config.install" }
+        config.install.dynamicLibrariesDirectory: dynamicLibrariesDirectory
 
         Depends { name: "cpp" }
         cpp.defines: cppDefines.concat(["QDJANGO_DB_BUILD"])
 
         Depends { name: "Qt"; submodules: "sql" }
 
-        Group {
-            fileTagsFilter: product.type
-            qbs.install: true
-            qbs.installPrefix: project.installPrefix
-        }
+        qbs.installPrefix: project.installPrefix
 
         files: [
             "QDjango.cpp",
